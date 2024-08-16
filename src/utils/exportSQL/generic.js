@@ -94,7 +94,7 @@ export function getTypeString(
       return `${type}(${field.size})`;
     }
     if (dbToTypes[currentDb][field.type].hasPrecision && field.size !== "") {
-      return `${field.type}${field.size}`;
+      return `${field.type.toLowerCase()}${field.size ? `(${field.size})` : ""}`;
     }
     return field.type.toLowerCase();
   } else if (dbms === "mssql") {
@@ -205,8 +205,9 @@ export function jsonToPostgreSQL(obj) {
         (f) =>
           `CREATE TYPE "${f.name}_t" AS ENUM (${f.values
             .map((v) => `'${v}'`)
-            .join(", ")});\n`,
-      );
+            .join(", ")});`,
+      )
+      .join("\n");
     if (typeStatements.length > 0) {
       return (
         typeStatements.join("") +
@@ -237,8 +238,9 @@ export function jsonToPostgreSQL(obj) {
                   (f) =>
                     `CREATE TYPE "${f.name}_t" AS ENUM (${f.values
                       .map((v) => `'${v}'`)
-                      .join(", ")});\n\n`,
-                )}`
+                      .join(", ")});\n`,
+                )
+                .join("\n")}\n`
             : ""
         }CREATE TABLE "${table.name}" (\n${table.fields
           .map(
